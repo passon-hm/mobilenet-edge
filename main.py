@@ -129,6 +129,7 @@ def main():
     inference_time = time.perf_counter() - start
     classes = classify.get_classes(interpreter, args.top_k, args.threshold)
     print(classes[0].id)
+    print(classes[0].score)
     if correctLabel == classes[0].id:
       correct1 += 1
     print('%.1fms' % (inference_time * 1000))
