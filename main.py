@@ -103,11 +103,16 @@ def main():
 
   interpreter.invoke()
 
+  correct1 = 0;
+  correct5 = 0;
   # Run inference
   print('----INFERENCE TIME----')
   print('Note: The first inference on Edge TPU is slow because it includes',
         'loading the model into Edge TPU memory.')
+
   for path in paths:
+    correctLabel = int(path.split("-")[0])
+    print(correctLabel)
     response = requests.get(api_url+path)
 
     if response.status_code == 200:
@@ -123,11 +128,13 @@ def main():
     interpreter.invoke()
     inference_time = time.perf_counter() - start
     classes = classify.get_classes(interpreter, args.top_k, args.threshold)
+    print(classes[0].id)
+    if correctLabel == classes[0].id:
+      correct1 += 1
     print('%.1fms' % (inference_time * 1000))
 
   print('-------RESULTS--------')
-  for c in classes:
-    print('%s: %.5f' % (labels.get(c.id, c.id), c.score))
+  print(correct1)
 
 
 if __name__ == '__main__':
