@@ -116,7 +116,7 @@ def main():
     response = requests.get(api_url+path)
 
     if response.status_code == 200:
-      Image.open(BytesIO(response.content)).convert('RGB').resize(size, Image.ANTIALIAS)
+      image = Image.open(BytesIO(response.content)).convert('RGB').resize(size, Image.ANTIALIAS)
     else:
       print('Failed to fetch image')
       continue
