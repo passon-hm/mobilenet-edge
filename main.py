@@ -103,6 +103,7 @@ def main():
 
   interpreter.invoke()
 
+  totalTime = 0.0
   counter = 0;
   correct1 = 0;
   correct5 = 0;
@@ -128,6 +129,7 @@ def main():
     start = time.perf_counter()
     interpreter.invoke()
     inference_time = time.perf_counter() - start
+    totalTime += inference_time
     classes = classify.get_classes(interpreter, 5, args.threshold)
     for i in range(0, 5):
       if correctLabel == classes[i].id-1:
@@ -141,8 +143,8 @@ def main():
     print('top 1: %.3f' % (correct1/counter))
     print('top 5: %.3f' % (correct5/counter))
 
-  print('-------RESULTS--------')
-  print(correct1)
+  print('------ AVG TIME -------')
+  print((totalTime/len(paths))*1000)
 
 
 if __name__ == '__main__':
