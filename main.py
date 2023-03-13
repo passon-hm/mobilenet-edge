@@ -114,7 +114,6 @@ def main():
   for path in paths:
     counter += 1
     correctLabel = int(path.split("-")[0])
-    print(correctLabel)
     response = requests.get(api_url+path)
 
     if response.status_code == 200:
@@ -129,14 +128,18 @@ def main():
     start = time.perf_counter()
     interpreter.invoke()
     inference_time = time.perf_counter() - start
-    classes = classify.get_classes(interpreter, args.top_k, args.threshold)
-    print(classes[0].id)
-    print(classes[0].score)
-    if correctLabel == classes[0].id-1:
-      correct1 += 1
-    print('%d' % counter)
+    classes = classify.get_classes(interpreter, 5, args.threshold)
+    for i in range(0, 5):
+      if correctLabel == classes[i].id-1:
+        if (i == 0):
+          correct1 += 1
+        correct5 += 1
+        break;
+
+    print('--------------%d' % counter)
     print('%.1fms' % (inference_time * 1000))
     print('top 1: %.3f' % (correct1/counter))
+    print('top 5: %.3f' % (correct5/counter))
 
   print('-------RESULTS--------')
   print(correct1)
