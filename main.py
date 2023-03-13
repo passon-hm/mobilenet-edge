@@ -134,7 +134,7 @@ def main():
     print(classes[0].score)
     if correctLabel == classes[0].id-1:
       correct1 += 1
-    print(counter + ":")
+    print('%d' % counter)
     print('%.1fms' % (inference_time * 1000))
     print('top 1: %.3f' % (correct1/counter))
 
