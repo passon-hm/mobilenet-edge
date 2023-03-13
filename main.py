@@ -103,6 +103,7 @@ def main():
 
   interpreter.invoke()
 
+  counter = 0;
   correct1 = 0;
   correct5 = 0;
   # Run inference
@@ -111,6 +112,7 @@ def main():
         'loading the model into Edge TPU memory.')
 
   for path in paths:
+    counter += 1
     correctLabel = int(path.split("-")[0])
     print(correctLabel)
     response = requests.get(api_url+path)
@@ -130,9 +132,11 @@ def main():
     classes = classify.get_classes(interpreter, args.top_k, args.threshold)
     print(classes[0].id)
     print(classes[0].score)
-    if correctLabel == classes[0].id:
+    if correctLabel == classes[0].id-1:
       correct1 += 1
+    print(counter + ":")
     print('%.1fms' % (inference_time * 1000))
+    print('top 1: %.3f' % (correct1/counter))
 
   print('-------RESULTS--------')
   print(correct1)
