@@ -73,7 +73,9 @@ def main():
     raise ValueError('Only support uint8 input type.')
 
   size = common.input_size(interpreter)
-  image = Image.open(args.input).convert('RGB').resize(size, Image.ANTIALIAS)
+
+  api_url = 'http://127.0.0.1:8000/images/'
+  image = Image.open(BytesIO(requests.get(api_url+paths[0]).content)).convert('RGB').resize(size, Image.ANTIALIAS)
 
   # Image data must go through two transforms before running inference:
   # 1. normalization: f = (input - mean) / std
@@ -100,7 +102,7 @@ def main():
 
 
   interpreter.invoke()
-  api_url = 'http://127.0.0.1:8000/images/'
+
   # Run inference
   print('----INFERENCE TIME----')
   print('Note: The first inference on Edge TPU is slow because it includes',
