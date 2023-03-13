@@ -74,7 +74,7 @@ def main():
 
   size = common.input_size(interpreter)
 
-  api_url = 'http://127.0.0.1:8000/images/'
+  api_url = 'http://192.168.178.31:8000/images/'
   image = Image.open(BytesIO(requests.get(api_url+paths[0]).content)).convert('RGB').resize(size, Image.ANTIALIAS)
 
   # Image data must go through two transforms before running inference:
