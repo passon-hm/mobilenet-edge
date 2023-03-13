@@ -65,7 +65,10 @@ def main():
 
   labels = read_label_file('./data/imagenet_labels.txt')
 
-  interpreter = make_interpreter('./data/tf2_mobilenet_v2_1.0_224_ptq_edgetpu.tflite')
+  if args.mode == "CPU":
+    interpreter = make_interpreter('./data/tf2_mobilenet_v2_1.0_224_ptq.tflite')
+  else:
+    interpreter = make_interpreter('./data/tf2_mobilenet_v2_1.0_224_ptq_edgetpu.tflite')
   interpreter.allocate_tensors()
 
   # Model must be uint8 quantized
