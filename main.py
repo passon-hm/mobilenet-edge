@@ -35,6 +35,10 @@ from pycoral.adapters import classify
 from pycoral.adapters import common
 from pycoral.utils.dataset import read_label_file
 from pycoral.utils.edgetpu import make_interpreter
+import requests
+from io import BytesIO
+
+from images import paths
 
 
 def main():
@@ -46,14 +50,11 @@ def main():
   parser.add_argument(
       '-l', '--labels', help='File path of labels file.')
   parser.add_argument(
-      '-k', '--top_k', type=int, default=1,
+      '-k', '--top_k', type=int, default=5,
       help='Max number of classification results')
   parser.add_argument(
       '-t', '--threshold', type=float, default=0.0,
       help='Classification score threshold')
-  parser.add_argument(
-      '-c', '--count', type=int, default=5,
-      help='Number of times to run inference')
   parser.add_argument(
       '-a', '--input_mean', type=float, default=128.0,
       help='Mean value for input normalization')
@@ -64,7 +65,7 @@ def main():
 
   labels = read_label_file('./data/imagenet_labels.txt')
 
-  interpreter = make_interpreter('./data/tf2_mobilenet_v2_1.0_224_ptq_edgetpu.tflite') if
+  interpreter = make_interpreter('./data/tf2_mobilenet_v2_1.0_224_ptq_edgetpu.tflite')
   interpreter.allocate_tensors()
 
   # Model must be uint8 quantized
@@ -97,11 +98,25 @@ def main():
     np.clip(normalized_input, 0, 255, out=normalized_input)
     common.set_input(interpreter, normalized_input.astype(np.uint8))
 
+
+  interpreter.invoke()
+  api_url = 'http://127.0.0.1:8000/images/'
   # Run inference
   print('----INFERENCE TIME----')
   print('Note: The first inference on Edge TPU is slow because it includes',
         'loading the model into Edge TPU memory.')
-  for _ in range(args.count):
+  for path in paths:
+    response = requests.get(api_url+path)
+
+    if response.status_code == 200:
+      Image.open(BytesIO(response.content)).convert('RGB').resize(size, Image.ANTIALIAS)
+    else:
+      print('Failed to fetch image')
+      continue
+
+    normalized_input = (np.asarray(image) - mean) / (std * scale) + zero_point
+    np.clip(normalized_input, 0, 255, out=normalized_input)
+    common.set_input(interpreter, normalized_input.astype(np.uint8))
     start = time.perf_counter()
     interpreter.invoke()
     inference_time = time.perf_counter() - start
